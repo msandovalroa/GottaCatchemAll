@@ -1,8 +1,8 @@
 # GottaCatchemAll
-I will travel across the app
-Searching far and wide
-Each bug you find to understand
-The error that's inside.
+You will travel across the app  <br />
+Searching far and wide  <br />
+Each bug you find to understand  <br />
+The error that's inside.  <br />
 
 ## We're sending you on a small bug hunt!
 The TICKETS.md file contains some bugs our QA has already found. They're still looking, so don't be surprised if you find some they haven't documented.
