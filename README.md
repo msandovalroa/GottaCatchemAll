@@ -12,3 +12,10 @@ Your task is to spend a bit of time to solve some bugs, as many as you feel comp
 As you address any bugs, please add any comments regarding the bug you may have in the related section. If you don't have enough information to solve the bug, this would be a good place to "communicate" with QA and ask them any question or for additional informal you may need.
 
 Anything QA hasn't found but you addressed, please note in the "Other" section.
+
+## How to get started
+
+- Clone this repo to your repository.
+- Make a feature branch with all of your changes.
+- Make a pull request for the feature branch into the original branch.
+- Send us a link the the pull request.
