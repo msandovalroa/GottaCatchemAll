@@ -5,20 +5,26 @@ const ordersRouter = new Router({ prefix: "/orders" });
 const ordersData = require("../lib/orders");
 
 ordersRouter.post("/", async (ctx) => {
-  const { customerName, items } = ctx.request.body;
+  ctx.body = ctx.request.body;
+  const { customerName, items } = ctx.body;
+
+  console.log(customerName)
+  console.log(items)
 
   if (!items.length) {
     ctx.throw(409, "No items ordered");
   }
 
-  const total = items.reduce((orderTotal, item) => (orderTotal += item.price * item.quantity),0);
-
+  const total = items.reduce(
+    (orderTotal, item) => (orderTotal += item.price),
+    0
+  );
   const order = {
     id: uuid(),
     customerName,
     createdOn: new Date(),
     items,
-    total
+    total,
   };
 
   ctx.status = 201;
@@ -26,17 +32,24 @@ ordersRouter.post("/", async (ctx) => {
 });
 
 ordersRouter.get("/", async (ctx) => {
-  const filterProperty = Object.keys(ctx.request.query)[0];
-  const filterValue = Object.values(ctx.request.query)[0];
-  //const { filterProperty, filterValue } = ctx.query;   --> old method
+//   const filterProperty =  Object.keys(ctx.request.query)
+//   const filterValue = Object.values(ctx.request.query)
 
- 
+
+const filterProperty =  'name'
+const filterValue = 'Cheeseburger'
+
+  console.log(filterProperty, filterValue)
+  
+
   let results = ordersData;
 
   if (filterProperty && filterValue) {
-    const filteredResults = ordersData.filter(({ items }) => 
-        items.filter(item => item[filterProperty].includes(filterValue)) 
-    )
+      console.log("here")
+    const filteredResults = ordersData.filter(({ items }) =>
+      items.filter((item) => item['name'].includes('Cheeseburger'))
+    );
+    console.log(filteredResults)
     results = filteredResults;
   }
 
@@ -56,9 +69,10 @@ ordersRouter.get("/:id", async (ctx) => {
   ctx.body = order;
 });
 
-ordersRouter.put("/:id", async (ctx) => {
+ordersRouter.put("/:id", async (ctx, next) => {
   const { id } = ctx.params;
-  const { customerName, items } = ctx.request.body;
+  const customerName = ctx.request.body.customerName;
+  const items = JSON.parse(ctx.request.body.items);
 
   const order = ordersData.find((order) => order.id === id);
 
@@ -66,20 +80,15 @@ ordersRouter.put("/:id", async (ctx) => {
     ctx.throw(404, "Could not find order");
   }
 
-  // update name
+  if (items.quantity && items.price) {
+    const price = items.quantity * items.price + order.price;
+    order.price = price;
+  }
+
   if (customerName) {
     order.customerName = customerName;
   }
-
-  // update items if exists
-  items.forEach(item => {
-    order.items.forEach(it => {
-      if(item.id == it.id) {
-        it.quantity += item.quantity;
-        order.total += item.quantity * item.price;
-      }
-    });
-  });
+  order.items.push(items);
 
   const updated = {
     ...order,
@@ -89,9 +98,9 @@ ordersRouter.put("/:id", async (ctx) => {
   ctx.body = updated;
 });
 
-
 ordersRouter.delete("/:id", async (ctx) => {
   const { id } = ctx.params;
+  console.log(id);
 
   const order = ordersData.find((order) => order.id === id);
 
@@ -99,14 +108,14 @@ ordersRouter.delete("/:id", async (ctx) => {
     ctx.throw(404, "Could not find order");
   }
 
-  /*****
-   * I removed this method
-   *const latest = ordersData.reduce((a, b) => (a.createdOn > b.createdOn ? a : b));
-   */
+  //   const latest = ordersData.reduce((a, b) =>
+  //     a.createdOn > b.createdOn ? a : b
+  //   );
 
-  const remaining = ordersData.filter((it) => {
-    return id != it.id;
-  });
+  const latest = id;
+
+  console.log(latest.id);
+  const remaining = ordersData.filter(({ id }) => id !== latest);
 
   ctx.status = 200;
   ctx.body = remaining;
